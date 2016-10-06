@@ -1,2 +1,2 @@
-# Petite-Chez-Scheme-Interpretor
-Petite Chez Scheme Interpretor implemented in Petite Chez Scheme
+# Petite-Chez-Scheme-Interpreter
+Petite Chez Scheme Interpreter implemented in Petite Chez Scheme
