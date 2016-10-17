@@ -8,8 +8,8 @@
   [app-exp (stuff (list-of expression?))]  ; applications
   [litq-exp (lit list?)]
   [lambda-exp (vars list?) (body (list-of expression?))]
-  [lambdai-exp (vars pair?) (body expression?)]
-  [lambdal-exp (var symbol?) (body expression?)]
+  [lambdai-exp (vars pair?) (body (list-of expression?))]
+  [lambdal-exp (vars list?) (body (list-of expression?))]
   [if1-exp (condition expression?) (arm0 expression?)]
   [if2-exp (condition expression?) (arm0 expression?) (arm1 expression?)]
   [let-exp (varnames list?) (varexps list?) (body list?)]

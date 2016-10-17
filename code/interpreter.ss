@@ -13,22 +13,26 @@
 ;; eval-exp is the main component of the interpreter
 (define eval-exp
   (lambda (exp env)
-    ;(dpp exp)
     (cases expression exp
-           [lit-exp    (datum) datum]
-           [litq-exp   (datum) (car datum)]
-           [var-exp    (id)    (eval-exp-helper (apply-env env id (lambda () (eopl:error 'apply-env "variable ~s is not bound" id))) env)]
-           [app-exp    (stuff) (apply-proc (eval-exp (car stuff) env)
-                                         (map (lambda (x) (eval-exp x env)) (cdr stuff))
-                                         env)]
-           [if2-exp    (condition arm0 arm1) (if (eval-exp condition env)
-                                                 (eval-exp arm0 env)
-                                                 (eval-exp arm1 env))]
-           [let-exp    (varnames varexps body) (eval-bodies
-                                                body
-                                                (extend-env (map cadr varnames) (map (lambda (x) (eval-exp-helper x env)) varexps) env))]
-           [lambda-exp (vars bodies) (closure vars bodies env)]
-           [else       (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
+           [lit-exp     (datum) datum]
+           [litq-exp    (datum) (car datum)]
+           [var-exp     (id)    (eval-exp-helper (apply-env env id (lambda () (eopl:error 'apply-env "variable ~s is not bound" id))) env)]
+           [app-exp     (stuff) (apply-proc (eval-exp (car stuff) env)
+                                            (map (lambda (x) (eval-exp x env)) (cdr stuff))
+                                            env)]
+           [if1-exp     (condition arm0) (if (eval-exp condition env)
+                                             (eval-exp arm0 env)
+                                             (list void))]
+           [if2-exp     (condition arm0 arm1) (if (eval-exp condition env)
+                                                  (eval-exp arm0 env)
+                                                  (eval-exp arm1 env))]
+           [let-exp     (varnames varexps body) (eval-bodies
+                                                 body
+                                                 (extend-env (map cadr varnames) (map (lambda (x) (eval-exp-helper x env)) varexps) env))]
+           [lambda-exp  (vars bodies) (closure vars bodies env)]
+           [lambdai-exp (vars bodies) (closure vars bodies env)]
+           [lambdal-exp (vars bodies) (closure vars bodies env)]
+           [else        (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
 
 (define (eval-bodies bodies env)
@@ -41,13 +45,13 @@
   (lambda (proc-value args env)
     (cases proc-val proc-value
            [prim-proc (op) (apply-prim-proc op args env)]
-           [closure (vars bodies env) (eval-bodies bodies (extend-env vars args env))]
-           [else (eopl:error 'apply-proc
-                             "Attempt to apply bad procedure: ~s" 
-                             proc-value)])))
+           [closure   (vars bodies env) (eval-bodies bodies (extend-env vars args env))]
+           [else      (eopl:error 'apply-proc
+                                  "Attempt to apply bad procedure: ~s" 
+                                  proc-value)])))
 
-(define *prim-proc-names* '(+ - * / ++ add1 -- sub1 cons = < <= > >= not
-                              zero? list null? assq eq? equal? atom? length
+(define *prim-proc-names* '(+ - * / ++ add1 -- sub1 cons = < <= > >= not map
+                              zero? list null? assq eq? equal? apply atom? length
                               list->vector list? pair? procedure? vector->list
                               vector make-vector vector-ref vector? number?
                               symbol? set-car! set-cdr! vector-set! display
@@ -84,6 +88,7 @@
       [(eq?)    (eq?  (car args) (cadr args))]
       [(car)    (car  (car args))]
       [(cdr)    (cdr  (car args))]
+      [(map)    (imap (car args) (cdr args) env)]
       [(not)    (not  (car args))]
       [(add1)   (+    (car args) 1)]
       [(sub1)   (-    (car args) 1)]
@@ -94,8 +99,9 @@
       [(cadr)   (cadr (car args))]
       [(cdar)   (cdar (car args))]
       [(cddr)   (cddr (car args))]
-      [(null?)  (null? (car args))]
+      [(apply)  (apply-proc (car args) (cadr args) env)]
       [(atom?)  (and (not (pair (car args))) (not (null? (car args))))]
+      [(null?)  (null? (car args))]
       [(list?)  (list? (car args))]
       [(pair?)  (pair? (car args))]
       [(caaar)  (caaar (car args))]

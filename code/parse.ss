@@ -20,18 +20,15 @@
                   (if (>= (length datum) 3)
                       (cond [(list? (cadr datum))
                              (if (andmap symbol? (cadr datum))
-                                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                                 ;; FIXME: Do this for the rest of the lambdas ;;
-                                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                  (lambda-exp (cadr datum) (map parse-exp (cddr datum)))
                                  (eopl:error 'parse-exp "args must be symbols in lambda"))]
                             [(and (pair? (cadr datum)) (not (list? (cadr datum))))
-                             (if (andmap symbol? (cadr datum))
-                                 (lambdai-exp (cadr datum) (parse-exp (cddr datum)))
+                             (if (andmap symbol? (to-proper (cadr datum)))
+                                 (lambdai-exp (to-proper (cadr datum)) (map parse-exp (cddr datum)))
                                  (eopl:error 'parse-exp "args must be symbols in lambda"))]
                             [else
                              (if (symbol? (cadr datum))
-                                 (lambdal-exp (cadr datum) (parse-exp (cddr datum)))
+                                 (lambdal-exp (list (cadr datum)) (map parse-exp (cddr datum)))
                                  (eopl:error 'parse-exp "arg must be a symbol in lambda"))])
                       (eopl:error 'parse-exp "incorrect number of parameters for the lambda"))]
                  [(eqv? (car datum) 'if)
@@ -84,9 +81,19 @@
                  [(eqv? (car datum) 'quote)
                   (litq-exp (list (cadr datum)))]
                  [else
-                   (if (list? datum)
-                       (app-exp (map (lambda (x) (parse-exp x)) datum))
-                       (eopl:error 'parse-exp "expression must be a proper list"))])]
+                  (if (list? datum)
+                      (let ([px (parse-exp (car datum))])
+                        (cond [(equal? 'lambdal-exp (car px))
+                               (app-exp (list px (app-exp (cons (var-exp 'list) (map (lambda (x) (parse-exp x)) (cdr datum))))))]
+                              [(equal? 'lambdai-exp (car px))
+                               (app-exp (append (append (list px)
+                                                        (let helper ([args (cdr datum)] [count (-- (length (cadr px)))])
+                                                          (if (= 0 count) '() (cons (parse-exp (car args)) (helper (cdr args) (-- count))))))
+                                                (list (app-exp (cons (var-exp 'list)
+                                                                     (map (lambda (x) (parse-exp x))
+                                                                          (list-tail (cdr datum) (-- (length (cadr px))))))))))]
+                              [else (app-exp (map (lambda (x) (parse-exp x)) datum))]))
+                      (eopl:error 'parse-exp "expression must be a proper list"))])]
           [else (eopl:error 'parse-exp "bad expression: ~s" datum)])))
 
 ;; This may be broken
