@@ -37,6 +37,13 @@
                           (if1-exp (parse-exp (cadr datum)) (parse-exp (caddr datum)))
                           (if2-exp (parse-exp (cadr datum)) (parse-exp (caddr datum)) (parse-exp (cadddr datum))))
                       (eopl:error 'parse-exp "incorrect if length"))]
+                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                 ;; FIXME: add error checking to all of this new stuff ;;
+                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                 [(eqv? (car datum) 'cond)
+                  (cond-exp (map parse-exp (cdr datum)))]
+                 [(eqv? (car datum) 'begin)
+                  (begin-exp (map parse-exp (cdr datum)))]
                  [(eqv? (car datum) 'let)
                   (if (>= (length datum) 3)
                       (if (symbol? (cadr datum))

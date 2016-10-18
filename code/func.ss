@@ -22,3 +22,37 @@
       (if (pair? ls)
           (cons (car ls) (to-proper (cdr ls)))
           (cons ls '()))))
+
+(define syntax-expand
+  (lambda (exp)
+    (cases expression exp
+           [let-exp   (varnames varexps body)
+                      (app-exp (append (list (list 'lambda-exp (map cadr varnames) (map syntax-expand body)))
+                                      (map syntax-expand varexps)))]
+           [cond-exp  (exps)
+                      (syntax-expand (let helper ([es exps])
+                                       (cond [(equal? (cadar (cadar es)) 'else) (cadr (cadar es))]
+                                             [(null? (cdr es)) (if1-exp (car (cadar es)) (cadr (cadar es)))]
+                                             [else (if2-exp (car (cadar es)) (cadr (cadar es)) (helper (cdr es)))])))]
+           [begin-exp (exps)
+                      (app-exp (list (lambda-exp '() exps)))]
+           ;; Just recurse down these
+           [app-exp     (stuff) (app-exp (map syntax-expand stuff))]
+           [if1-exp     (condition arm0) (if1-exp (syntax-expand condition) (syntax-expand arm0))]
+           [if2-exp     (condition arm0 arm1) (if2-exp (syntax-expand condition) (syntax-expand arm0) (syntax-expand arm1))]
+           [lambda-exp  (vars bodies) (lambda-exp  vars (map syntax-expand bodies))]
+           [lambdai-exp (vars bodies) (lambdai-exp vars (map syntax-expand bodies))]
+           [lambdal-exp (vars bodies) (lambdal-exp vars (map syntax-expand bodies))]
+           [else exp])))
+
+ ;; Will potentially be useful for later
+(define let*->let
+  (lambda (let*-expression)
+    (define let*->let-helper
+      (lambda (exp-list element)
+        (if (equal? (length exp-list) 1)
+            (append (cons 'let (list (list (car exp-list))))
+                    (list element))
+            (append (cons 'let (list (list (car exp-list))))
+                    (list (let*->let-helper (cdr exp-list) element))))))
+    (let*->let-helper (cadr let*-expression) (caddr let*-expression))))

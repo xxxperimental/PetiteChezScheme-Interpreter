@@ -22,13 +22,10 @@
                                             env)]
            [if1-exp     (condition arm0) (if (eval-exp condition env)
                                              (eval-exp arm0 env)
-                                             (list void))]
+                                             (void))]
            [if2-exp     (condition arm0 arm1) (if (eval-exp condition env)
                                                   (eval-exp arm0 env)
                                                   (eval-exp arm1 env))]
-           [let-exp     (varnames varexps body) (eval-bodies
-                                                 body
-                                                 (extend-env (map cadr varnames) (map (lambda (x) (eval-exp-helper x env)) varexps) env))]
            [lambda-exp  (vars bodies) (closure vars bodies env)]
            [lambdai-exp (vars bodies) (closure vars bodies env)]
            [lambdal-exp (vars bodies) (closure vars bodies env)]
@@ -50,7 +47,7 @@
                                   "Attempt to apply bad procedure: ~s" 
                                   proc-value)])))
 
-(define *prim-proc-names* '(+ - * / ++ add1 -- sub1 cons = < <= > >= not map
+(define *prim-proc-names* '(+ - * / ++ add1 -- sub1 cons = < <= > >= not map or
                               zero? list null? assq eq? equal? apply atom? length
                               list->vector list? pair? procedure? vector->list
                               vector make-vector vector-ref vector? number?
@@ -85,6 +82,8 @@
       [(>=)     (apply >= args)]
       [(++)     (+    (car args) 1)]
       [(--)     (-    (car args) 1)]
+      [(or)     (ormap (lambda (x) x) args)]
+      [(and)    (andmap (lambda (x) x) args)]
       [(eq?)    (eq?  (car args) (cadr args))]
       [(car)    (car  (car args))]
       [(cdr)    (cdr  (car args))]
@@ -159,4 +158,4 @@
       (rep))))  ; tail-recursive, so stack doesn't grow.
 
 (define eval-one-exp
-  (lambda (x) (top-level-eval (parse-exp x))))
+  (lambda (x) (top-level-eval (syntax-expand (parse-exp x)))))
