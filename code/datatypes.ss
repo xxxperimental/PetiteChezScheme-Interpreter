@@ -26,7 +26,9 @@
   [prim-proc (name symbol?)]
   [closure (vars (list-of symbol?))
            (bodies list?)
-           (env list?)])
+           (env (lambda (x) (ormap
+                             (lambda (pred) (pred x))
+                             (list vector? null?))))])
 
 ;; environment type definitions
 (define (scheme-value? x) #t)

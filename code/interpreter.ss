@@ -29,6 +29,7 @@
            [lambda-exp  (vars bodies) (closure vars bodies env)]
            [lambdai-exp (vars bodies) (closure vars bodies env)]
            [lambdal-exp (vars bodies) (closure vars bodies env)]
+           [letr-exp    (vars vbodies bodies) (eval-bodies bodies (extend-env (map cadr vars) vbodies env))]
            [else        (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
 
@@ -49,20 +50,16 @@
 
 (define *prim-proc-names* '(+ - * / ++ add1 -- sub1 cons = < <= > >= not map or
                               zero? list null? assq eq? equal? apply atom? length
-                              list->vector list? pair? procedure? vector->list
-                              vector make-vector vector-ref vector? number?
-                              symbol? set-car! set-cdr! vector-set! display
-                              newline car cdr caar cadr cdar cddr caaar
+                              list->vector list? pair? procedure? vector->list list-tail
+                              vector make-vector vector-ref vector? number? eqv?
+                              symbol? set-car! set-cdr! vector-set! display append
+                              newline quotient car cdr caar cadr cdar cddr caaar
                               caadr cadar caddr cdaar cdadr cddar cdddr
                               caaaar caaadr caadar caaddr cadaar cadadr
                               caddar cadddr cdaaar cdaadr cdadar cdaddr
                               cddaar cddadr cdddar cddddr))
 
-(define init-env         ; for now, our initial global environment only contains 
-  (extend-env            ; procedure names.  Recall that an environment associates
-   *prim-proc-names*     ; a value (not an expression) with an identifier.
-   (map prim-proc *prim-proc-names*)
-   (empty-env)))
+(define init-env (extend-env *prim-proc-names* (map prim-proc *prim-proc-names*) (empty-env)))
 (define global-env init-env)
 
 
@@ -92,6 +89,7 @@
       [(add1)   (+    (car args) 1)]
       [(sub1)   (-    (car args) 1)]
       [(cons)   (cons (car args) (cadr args))]
+      [(eqv?)   (eqv? (car args) (cadr args))]
       [(list)   args]
       [(assq)   (assq (car args) (cadr args))]
       [(caar)   (caar (car args))]
@@ -112,6 +110,7 @@
       [(cddar)  (cddar (car args))]
       [(cdddr)  (cdddr (car args))]
       [(zero?)  (zero? (car args))]
+      [(append) (append (car args) (cadr args))]
       [(equal?) (equal? (car args) (cadr args))]
       [(length) (length (car args))]
       [(vector) (list->vector args)]
@@ -138,6 +137,8 @@
       [(newline)      (newline)]
       [(set-car!)     (set-car! (car args) (cadr args))]
       [(set-cdr!)     (set-cdr! (car args) (cadr args))]
+      [(quotient)     (quotient (car args) (cadr args))]
+      [(list-tail)    (list-tail (car args) (cadr args))]
       [(procedure?)   (and (list? (car args)) (or (equal? 'prim-proc (caar args)) (equal? 'closure (caar args))))]
       [(vector-ref)   (vector-ref (car args) (cadr args))]
       [(vector-set!)  (vector-set! (car args) (cadr args) (caddr args))]

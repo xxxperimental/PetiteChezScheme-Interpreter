@@ -56,9 +56,9 @@
                           (if (list? (cadr datum))
                               (if (and (andmap (lambda (x) (and (list? x) (equal? (length x) 2))) (cadr datum))
                                        (andmap symbol? (map car (cadr datum))))
-                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                                  ;; FIXME: Fix the rest of the let parsing ;;
-                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                                  ;; FIXME?: Fix the rest of the let parsing (maybe?) ;;
+                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                   (let-exp (get-let-vars (cadr datum)) (get-let-varexps (cadr datum)) (map parse-exp (cddr datum)))
                                   (eopl:error 'parse-exp "all list variables must be symbols"))
                               (eopl:error 'parse-exp "arguments list must be a proper list")))
@@ -68,7 +68,7 @@
                       (if (list? (cadr datum))
                           (if (and (andmap (lambda (x) (and (list? x) (equal? (length x) 2))) (cadr datum))
                                    (andmap symbol? (map car (cadr datum))))
-                              (let*-exp (get-let-vars (cadr datum)) (get-let-varexps (cadr datum)) (parse-exp (cddr datum)))
+                              (let*-exp (get-let-vars (cadr datum)) (get-let-varexps (cadr datum)) (map parse-exp (cddr datum)))
                               (eopl:error 'parse-exp "all list variables must be symbols"))
                           (eopl:error 'parse-exp "all list variables must be symbols"))
                       (eopl:error 'parse-exp "incorrect number of parameters for the let*"))]
@@ -77,7 +77,7 @@
                       (if (list? (cadr datum))
                           (if (and (andmap (lambda (x) (and (list? x) (equal? (length x) 2))) (cadr datum))
                                    (andmap symbol? (map car (cadr datum))))
-                              (letr-exp (get-let-vars (cadr datum)) (get-let-varexps (cadr datum)) (parse-exp (cddr datum)))
+                              (letr-exp (get-let-vars (cadr datum)) (get-let-varexps (cadr datum)) (map parse-exp (cddr datum)))
                               (eopl:error 'parse-exp "all list variables must be symbols"))
                           (eopl:error 'parse-exp "all list variables must be symbols"))
                       (eopl:error 'parse-exp "incorrect number of parameters for the letrec"))]
