@@ -18,7 +18,11 @@
   [letn-exp (id symbol?) (varnames list?) (varexps list?) (body list?)]
   [let*-exp (varnames list?) (varexps list?) (body list?)]
   [letr-exp (varnames list?) (varexps list?) (body list?)]
-  [set!-exp (target symbol?) (val expression?)])
+  [set!-exp (target symbol?) (val expression?)]
+  ;;******************************\/\/\/\/******************************;;
+  [case-lambda-exp (lambda-exps (list-of expression?))]
+  ;;******************************/\/\/\/\******************************;;
+  )
 
 ;; datatype for procedures.  At first there is only one
 ;; kind of procedure, but more kinds will be added later.

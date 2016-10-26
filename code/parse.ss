@@ -87,6 +87,13 @@
                       (eopl:error 'parse-exp "incorrect number of parameters for the set!"))]
                  [(eqv? (car datum) 'quote)
                   (litq-exp (list (cadr datum)))]
+                 ;;******************************\/\/\/\/******************************;;
+                 [(eqv? (car datum) 'case-lambda)
+                  (case-lambda-exp (let helper ([lcases (cdr datum)])
+                                     (if (null? lcases) '()
+                                         (cons (parse-exp (cons 'lambda (car lcases))) 
+                                               (helper (cdr lcases))))))]
+                 ;;******************************/\/\/\/\******************************;;
                  [else
                   (if (list? datum)
                       (let ([px (parse-exp (car datum))])
