@@ -51,15 +51,20 @@
 ;;******************************\/\/\/\/******************************;;
 (define (get-closure closures args)
   (let ([c-stuff (let helper ([clos closures] [index 0])
-                   (cons (cases proc-val (car clos) [closure (vars bodies t env) (v vars t index)])
-                         (helper (cdr clos) (++ index))))])
+                   (if (null? clos) '()
+                       (cons (cases proc-val (car clos)
+                                    [closure (vars bodies t env) (v vars t index)]
+                                    [else (eopl:error 'get-closure-c-stuff "Bad closure")])
+                             (helper (cdr clos) (++ index)))))])
     (let ([normals   (remove-voids (map (lambda (x) (if (equal? (v1 x) 'n) x)) c-stuff))]
           [impropers (remove-voids (map (lambda (x) (if (equal? (v1 x) 'i) x)) c-stuff))]
           [listtypes (remove-voids (map (lambda (x) (if (equal? (v1 x) 'l) x)) c-stuff))])
       (let ([ordered (append normals impropers listtypes)]
             [al      (length args)])
         (let helper ([cs ordered])
-          (cond [(null? cs) (eopl:error 'get-closure "Bad stuff")]
+          (cond [(null? cs) (cond [(> (length impropers) 0) (list-ref closures (v2 (car impropers)))]
+                                  [(> (length listtypes) 0) (list-ref closures (v2 (car listtypes)))]
+                                  [else (eopl:error 'get-closure "Bad stuff")])]
                 [(equal? al (length (v0 (car cs)))) (list-ref closures (v2 (car cs)))]
                 [else (helper (cdr cs))]))))))
 ;;******************************/\/\/\/\******************************;;
@@ -70,7 +75,7 @@
            [prim-proc (op) (apply-prim-proc op args env)]
            [closure   (vars bodies t env) (eval-bodies bodies (extend-env vars args env))]
            ;;******************************\/\/\/\/******************************;;
-           [case-closure (closures) (eval
+           [case-closure (closures) (apply-proc (get-closure closures args) args env)]
            ;;******************************/\/\/\/\******************************;;
            [else      (eopl:error 'apply-proc
                                   "Attempt to apply bad procedure: ~s" 

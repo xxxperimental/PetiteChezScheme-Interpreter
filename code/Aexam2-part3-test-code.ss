@@ -195,8 +195,8 @@
 ;#by loading this file (and your solution) and typing (r)
 
 (define (run-all)
-  (display 'C3) 
-  (test-C3 )
+  ;(display 'C3) 
+  ;(test-C3 )
   (display 'C4) 
   (test-C4)
 
