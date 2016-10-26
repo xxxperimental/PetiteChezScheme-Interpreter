@@ -69,11 +69,17 @@
                 [else (helper (cdr cs))]))))))
 ;;******************************/\/\/\/\******************************;;
 
+(define (fix-args vars args t)
+  (cond [(equal? t 'n) args]
+        [(equal? t 'i) (let helper ([vs vars] [as args])
+                         (if (or (null? vs) (null? (cdr vs))) (list as) (cons (car as) (helper (cdr vs) (cdr as)))))]
+        [else (list args)]))
+
 (define apply-proc
   (lambda (proc-value args env)
     (cases proc-val proc-value
            [prim-proc (op) (apply-prim-proc op args env)]
-           [closure   (vars bodies t env) (eval-bodies bodies (extend-env vars args env))]
+           [closure   (vars bodies t env) (eval-bodies bodies (extend-env vars (fix-args vars args t) env))]
            ;;******************************\/\/\/\/******************************;;
            [case-closure (closures) (apply-proc (get-closure closures args) args env)]
            ;;******************************/\/\/\/\******************************;;

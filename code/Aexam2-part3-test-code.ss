@@ -72,9 +72,9 @@
 	     (eval-one-exp '(let ([f 
 				   (case-lambda [(n) (+ n 2)] [(m . n) (+ m (car n) 10)] 
 						[L (list L)])]) (list (f) (f 4) (f 5 6) (f 7 8 9) )))
-	     (eval-one-exp '(let ([f (case-lambda 
-				      [(n) (+ n 2)] 
-				      [(m . n) (+ m (car n) 10)] 
+	     (eval-one-exp '(let ([f (case-lambda
+				      [(n) (+ n 2)]
+				      [(m . n) (+ m (car n) 10)]
 				      [L (list L)])]) (f (f 3 4 5))))
 
 	     )])
