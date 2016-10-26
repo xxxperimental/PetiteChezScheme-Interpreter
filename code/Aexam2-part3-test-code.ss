@@ -70,12 +70,18 @@
 	     (eval-one-exp '((case-lambda [(n) (+ n 2)] [(m . n) (+ m (car n) 10)]) 5 8))
 	     (eval-one-exp '((case-lambda [(m . n) (+ m (car n) 10)] [(n) (+ n 2)]) 5 8))
 	     (eval-one-exp '(let ([f 
-				   (case-lambda [(n) (+ n 2)] [(m . n) (+ m (car n) 10)] 
-						[L (list L)])]) (list (f) (f 4) (f 5 6) (f 7 8 9) )))
+				   (case-lambda [(n) (+ n 2)]
+                                                [(m . n) (+ m (car n) 10)] 
+						[L (list L)])])
+                              (list (f)
+                                    (f 4)
+                                    (f 5 6)
+                                    (f 7 8 9) )))
 	     (eval-one-exp '(let ([f (case-lambda
 				      [(n) (+ n 2)]
 				      [(m . n) (+ m (car n) 10)]
-				      [L (list L)])]) (f (f 3 4 5))))
+				      [L (list L)])])
+                              (f (f 3 4 5))))
 
 	     )])
       (display-results correct answers equal?)))

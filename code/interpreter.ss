@@ -62,7 +62,9 @@
       (let ([ordered (append normals impropers listtypes)]
             [al      (length args)])
         (let helper ([cs ordered])
-          (cond [(null? cs) (cond [(> (length impropers) 0) (list-ref closures (v2 (car impropers)))]
+          (cond [(null? cs) (cond [(and (> (length impropers) 0)
+                                        (> al (length (v0 (car impropers)))))
+                                   (list-ref closures (v2 (car impropers)))]
                                   [(> (length listtypes) 0) (list-ref closures (v2 (car listtypes)))]
                                   [else (eopl:error 'get-closure "Bad stuff")])]
                 [(equal? al (length (v0 (car cs)))) (list-ref closures (v2 (car cs)))]
