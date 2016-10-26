@@ -26,10 +26,19 @@
            [if2-exp     (condition arm0 arm1) (if (eval-exp condition env)
                                                   (eval-exp arm0 env)
                                                   (eval-exp arm1 env))]
-           [lambda-exp  (vars bodies) (closure vars bodies env)]
-           [lambdai-exp (vars bodies) (closure vars bodies env)]
-           [lambdal-exp (vars bodies) (closure vars bodies env)]
+           [lambda-exp  (vars bodies) (closure vars bodies 'n env)]
+           [lambdai-exp (vars bodies) (closure vars bodies 'i env)]
+           [lambdal-exp (vars bodies) (closure vars bodies 'l env)]
            [letr-exp    (vars vbodies bodies) (eval-bodies bodies (extend-env (map cadr vars) vbodies env))]
+           ;;******************************\/\/\/\/******************************;;
+           [case-lambda-exp (lambdas) (case-closure (map (lambda (x)
+                                                           (cases expression x
+                                                                  [lambda-exp  (v b) (closure v b 'n env)]
+                                                                  [lambdai-exp (v b) (closure v b 'i env)]
+                                                                  [lambdal-exp (v b) (closure v b 'l env)]
+                                                                  [else (eopl:error 'eval-exp-case-lambda "No")]))
+                                                         lambdas))]
+           ;;******************************/\/\/\/\******************************;;
            [else        (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
 
@@ -39,11 +48,30 @@
       (begin (eval-exp (car bodies) env)
              (eval-bodies (cdr bodies) env))))
 
+;;******************************\/\/\/\/******************************;;
+(define (get-closure closures args)
+  (let ([c-stuff (let helper ([clos closures] [index 0])
+                   (cons (cases proc-val (car clos) [closure (vars bodies t env) (v vars t index)])
+                         (helper (cdr clos) (++ index))))])
+    (let ([normals   (remove-voids (map (lambda (x) (if (equal? (v1 x) 'n) x)) c-stuff))]
+          [impropers (remove-voids (map (lambda (x) (if (equal? (v1 x) 'i) x)) c-stuff))]
+          [listtypes (remove-voids (map (lambda (x) (if (equal? (v1 x) 'l) x)) c-stuff))])
+      (let ([ordered (append normals impropers listtypes)]
+            [al      (length args)])
+        (let helper ([cs ordered])
+          (cond [(null? cs) (eopl:error 'get-closure "Bad stuff")]
+                [(equal? al (length (v0 (car cs)))) (list-ref closures (v2 (car cs)))]
+                [else (helper (cdr cs))]))))))
+;;******************************/\/\/\/\******************************;;
+
 (define apply-proc
   (lambda (proc-value args env)
     (cases proc-val proc-value
            [prim-proc (op) (apply-prim-proc op args env)]
-           [closure   (vars bodies env) (eval-bodies bodies (extend-env vars args env))]
+           [closure   (vars bodies t env) (eval-bodies bodies (extend-env vars args env))]
+           ;;******************************\/\/\/\/******************************;;
+           [case-closure (closures) (eval
+           ;;******************************/\/\/\/\******************************;;
            [else      (eopl:error 'apply-proc
                                   "Attempt to apply bad procedure: ~s" 
                                   proc-value)])))

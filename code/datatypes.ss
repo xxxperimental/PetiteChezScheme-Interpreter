@@ -30,9 +30,14 @@
   [prim-proc (name symbol?)]
   [closure (vars (list-of symbol?))
            (bodies list?)
+           (type symbol?) ; Should be 'n' for normal, 'i' for improper, and 'l' for list
            (env (lambda (x) (ormap
                              (lambda (pred) (pred x))
-                             (list vector? null?))))])
+                             (list vector? null?))))]
+  ;;******************************\/\/\/\/******************************;;
+  [case-closure (closures (list-of proc-val?))]
+  ;;******************************/\/\/\/\******************************;;
+  )
 
 ;; environment type definitions
 (define (scheme-value? x) #t)

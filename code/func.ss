@@ -11,6 +11,11 @@
 (define (dpp x) (display x)(newline))
 (define br newline)
 
+(define (remove-voids list)
+  (cond [(null? list) '()]
+        [(equal? (car list) (void)) (remove-voids (cdr list))]
+        [else (cons (car list) (remove-voids (cdr list)))]))
+
 (define (imap proc lists env)
   (letrec ([helper (lambda (lists)
                      (if (or (null? lists) (null? (car lists))) '()
