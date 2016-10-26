@@ -50,9 +50,9 @@
            [app-exp     (stuff) (app-exp (map syntax-expand stuff))]
            [if1-exp     (condition arm0) (if1-exp (syntax-expand condition) (syntax-expand arm0))]
            [if2-exp     (condition arm0 arm1) (if2-exp (syntax-expand condition) (syntax-expand arm0) (syntax-expand arm1))]
-           [lambda-exp  (vars bodies) (lambda-exp vars (map syntax-expand bodies))]
-           [lambdai-exp (vars bodies) (lambda-exp vars (map syntax-expand bodies))]
-           [lambdal-exp (vars bodies) (lambda-exp vars (map syntax-expand bodies))]
+           [lambda-exp  (vars bodies) (lambda-exp  vars (map syntax-expand bodies))]
+           [lambdai-exp (vars bodies) (lambdai-exp vars (map syntax-expand bodies))]
+           [lambdal-exp (vars bodies) (lambdal-exp vars (map syntax-expand bodies))]
            [else exp])))
 
  ;; Will potentially be useful for later
