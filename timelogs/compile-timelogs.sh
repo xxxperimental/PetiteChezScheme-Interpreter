@@ -11,7 +11,7 @@ while getopts "o" OPT
 do
 	case $OPT in
 		o)
-			open timelog-m.pdf
+			#open timelog-m.pdf
 			open timelog-w.pdf;;
 	esac
 done

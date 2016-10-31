@@ -2,28 +2,32 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{makecell}
 \usepackage{longtable}
+\usepackage{soul}
 
 \title{CSSE 304 Interpreter Time Log}
-\author{Wesley Van Pelt\\Partner: Maxim Zaman}
-\date{18 October 2016}
+\author{Wesley Van Pelt\\Partner: \st{Maxim Zaman} Nicholas Iasso}
+\date{31 October 2016}
 
 \begin{document}
 \maketitle
 
-\begin{center}\begin{longtable}{| c | c | c | c | c | c |} \hline
-	\thead{Start Date} & \thead{Start\\Time} & \thead{Length\\(in Hours)} & \thead{Mode}     & \thead{Worked On}                                               & \thead{Comments} \\ \hline
-	\thead{2016-10-07} & \thead{23:00}       & \thead{6}                  & \thead{Together} & \thead{Figuring out what to do and implemented primitive types} & \thead{None} \\ \hline
-	\thead{2016-10-10} & \thead{18:00}       & \thead{3.5}                & \thead{Together} & \thead{Debugged primitive types, added ifs, and started let}    & \thead{None} \\ \hline
-	\thead{2016-10-12} & \thead{20:00}       & \thead{5}                  & \thead{Together} & \thead{Debugged let}                                            & \thead{Let is hard} \\ \hline
-	\thead{2016-10-13} & \thead{17:00}       & \thead{1}                  & \thead{Alone}    & \thead{Debugged let}                                            & \thead{Let is still hard} \\ \hline
-	\thead{2016-10-13} & \thead{18:00}       & \thead{6}                  & \thead{Together} & \thead{Finished milestone 1}                                    & \thead{This seemed to take longer tha it should have...} \\ \hline
-	\thead{2016-10-14} & \thead{20:00}       & \thead{1}                  & \thead{Alone}    & \thead{Set up project on git and organized files}               & \thead{Git is cool} \\ \hline
-	\thead{2016-10-15} & \thead{14:45}       & \thead{2}                  & \thead{Alone}    & \thead{Started milestone 2}                                     & \thead{I was bored at the football game} \\ \hline
-	\thead{2016-10-16} & \thead{21:15}       & \thead{5}                  & \thead{Together} & \thead{Milestone 2 complete aside from syntactic expansion}     & \thead{None} \\ \hline
-	\thead{2016-10-17} & \thead{19:00}       & \thead{5}                  & \thead{Together} & \thead{Milestone 2 complete aside from while and case}          & \thead{Didn't have time to implement while and case before midnight} \\ \hline
-	\thead{2016-10-24} & \thead{13:00}       & \thead{3}                  & \thead{Alone}    & \thead{Started milestone 3}                                     & \thead{None} \\ \hline
-	\thead{2016-10-24} & \thead{18:00}       & \thead{6}                  & \thead{Together} & \thead{Got most of milestone 3 done}                            & \thead{Issues with improper lambda} \\ \hline
-	%\thead{2016-10-17T19:00:00-04:00/P5H}
+\begin{center}\begin{longtable}{| c | c | c | c |} \hline
+	\thead{ISO 8601 Timestamp}                        & \thead{Mode}     & \thead{Worked On}                                               & \thead{Comments} \\ \hline
+	\texttt{\thead{2016-10-07T23:00:00-04:00/P6H}}    & \thead{Together} & \thead{Figuring out what to do and implemented primitive types} & \thead{None} \\ \hline
+	\texttt{\thead{2016-10-10T18:00:00-04:00/P3H30M}} & \thead{Together} & \thead{Debugged primitive types, added ifs, and started let}    & \thead{None} \\ \hline
+	\texttt{\thead{2016-10-12T20:00:00-04:00/P5H}}    & \thead{Together} & \thead{Debugged let}                                            & \thead{Let is hard} \\ \hline
+	\texttt{\thead{2016-10-13T17:00:00-04:00/P1H}}    & \thead{Alone}    & \thead{Debugged let}                                            & \thead{Let is still hard} \\ \hline
+	\texttt{\thead{2016-10-13T18:00:00-04:00/P6H}}    & \thead{Together} & \thead{Finished milestone 1}                                    & \thead{This seemed to take longer tha it should have...} \\ \hline
+	\texttt{\thead{2016-10-14T20:00:00-04:00/P1H}}    & \thead{Alone}    & \thead{Set up project on git and organized files}               & \thead{Git is cool} \\ \hline
+	\texttt{\thead{2016-10-15T14:45:00-04:00/P2H}}    & \thead{Alone}    & \thead{Started milestone 2}                                     & \thead{I was bored at the football game} \\ \hline
+	\texttt{\thead{2016-10-16T21:15:00-04:00/P5H}}    & \thead{Together} & \thead{Milestone 2 complete aside from syntactic expansion}     & \thead{None} \\ \hline
+	\texttt{\thead{2016-10-17T19:00:00-04:00/P5H}}    & \thead{Together} & \thead{Milestone 2 complete aside from while and case}          & \thead{Didn't have time to implement while and case before midnight} \\ \hline
+	\texttt{\thead{2016-10-24T13:00:00-04:00/P3H}}    & \thead{Alone}    & \thead{Started milestone 3}                                     & \thead{None} \\ \hline
+	\texttt{\thead{2016-10-24T18:00:00-04:00/P6H}}    & \thead{Together} & \thead{Got most of milestone 3 done}                            & \thead{Issues with improper lambda} \\ \hline \hline
+	\texttt{\thead{2016-10-30T19:00:00-04:00/P1H30M}} & \thead{Together} & \thead{Figured out which interpreter to use, read through code} & \thead{Working with Nick should be good} \\ \hline
+	\texttt{\thead{2016-10-30T21:00:00-04:00/P1H}}    & \thead{Alone}    & \thead{Cleaned up and figured out how his code works}           & \thead{None} \\ \hline
+	\texttt{\thead{2016-10-31T01:45:00-04:00/P1H45M}} & \thead{Alone}    & \thead{Tried to debug let/switched interpreters}                & \thead{We changed our minds to use mine since all of the bugs are known} \\ \hline
+	\texttt{\thead{2016-10-31T13:00:00-04:00/P1H30M}} & \thead{Alone}    & \thead{Implemented while, started implementing case}            & \thead{Finally getting stuff from milestone 2 working...} \\ \hline
 \end{longtable}\end{center}
 
 \end{document}

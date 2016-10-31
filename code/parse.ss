@@ -44,6 +44,8 @@
                   (cond-exp (map parse-exp (cdr datum)))]
                  [(eqv? (car datum) 'begin)
                   (begin-exp (map parse-exp (cdr datum)))]
+                 [(eqv? (car datum) 'while)
+                  (while-exp (parse-exp (cadr datum)) (map parse-exp (cddr datum)))]
                  [(eqv? (car datum) 'let)
                   (if (>= (length datum) 3)
                       (if (symbol? (cadr datum))

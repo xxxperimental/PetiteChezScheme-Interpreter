@@ -133,7 +133,7 @@
       [(vector?)      (vector? (car args))]
       [(number?)      (number? (car args))]
       [(symbol?)      (symbol? (car args))]
-      [(display)      (display (car args) (cadr args))]
+      [(display)      (display (car args))]
       [(newline)      (newline)]
       [(set-car!)     (set-car! (car args) (cadr args))]
       [(set-cdr!)     (set-cdr! (car args) (cadr args))]

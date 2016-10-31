@@ -7,6 +7,8 @@
 (define (v3 v) (vr v 3))
 (define (++ x) (+ x 1))
 (define (-- x) (- x 1))
+(define (pa x) (parse-exp x))
+(define (pe x) (syntax-expand (parse-exp x)))
 (define (dp x) (display x))
 (define (dpp x) (display x)(newline))
 (define br newline)
@@ -38,7 +40,6 @@
                       (letr-exp (list (list 'var-exp name))
                                 (list (list 'lambda-exp (map cadr vars) (map syntax-expand (cadr bodies))))
                                 (list (list 'app-exp (cons (list 'var-exp name) (map syntax-expand varexps)))))]
-           [letr-exp  (vars vbodies bodies) (letr-exp vars (map syntax-expand vbodies) (map syntax-expand bodies))]
            [cond-exp  (exps)
                       (syntax-expand (let helper ([es exps])
                                        (cond [(equal? (cadar (cadar es)) 'else) (cadr (cadar es))]
@@ -46,10 +47,16 @@
                                              [else (if2-exp (car (cadar es)) (cadr (cadar es)) (helper (cdr es)))])))]
            [begin-exp (exps)
                       (app-exp (list (lambda-exp '() exps)))]
+           [while-exp (cnd bodies)
+                      (letr-exp (list (var-exp 'looper) (var-exp 'bodies))
+                                (list (lambda-exp '() (list (if1-exp (syntax-expand cnd)
+                                                                     (app-exp (list (lambda-exp '() (append bodies (list (app-exp (list (var-exp 'looper))))))))))))
+                                (list (app-exp (list (var-exp 'looper)))))]
            ;; Just recurse down these
            [app-exp     (stuff) (app-exp (map syntax-expand stuff))]
            [if1-exp     (condition arm0) (if1-exp (syntax-expand condition) (syntax-expand arm0))]
            [if2-exp     (condition arm0 arm1) (if2-exp (syntax-expand condition) (syntax-expand arm0) (syntax-expand arm1))]
+           [letr-exp    (vars vbodies bodies) (letr-exp vars (map syntax-expand vbodies) (map syntax-expand bodies))]
            [lambda-exp  (vars bodies) (lambda-exp vars (map syntax-expand bodies))]
            [lambdai-exp (vars bodies) (lambda-exp vars (map syntax-expand bodies))]
            [lambdal-exp (vars bodies) (lambda-exp vars (map syntax-expand bodies))]
