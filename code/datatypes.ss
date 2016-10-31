@@ -13,6 +13,7 @@
   [if1-exp   (condition expression?) (arm0 expression?)]
   [if2-exp   (condition expression?) (arm0 expression?) (arm1 expression?)]
   [while-exp (condition expression?) (bodies list?)]
+  [case-exp  (val expression?) (conds list?) (bodies list?)]
   [cond-exp  (exp list?)]
   [let-exp   (varnames list?) (varexps list?) (body list?)]
   [letn-exp  (id symbol?) (varnames list?) (varexps list?) (body list?)]
