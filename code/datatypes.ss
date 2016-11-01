@@ -1,9 +1,8 @@
 ;; Parsed expression datatypes
 (define-datatype expression expression?
   [var-exp (id symbol?)]
-  [lit-exp (datum (lambda (x) (ormap
-                               (lambda (pred) (pred x))
-                               (list number? vector? boolean? symbol? string? pair? null?))))]
+  [lit-exp (datum (lambda (x) (ormap (lambda (pred) (pred x))
+                                     (list number? vector? boolean? symbol? string? pair? null?))))]
   [app-exp     (stuff (list-of expression?))]  ; applications
   [litq-exp    (lit list?)]
   [lambda-exp  (vars list?) (body (list-of expression?))]
@@ -19,7 +18,9 @@
   [letn-exp  (id symbol?) (varnames list?) (varexps list?) (body list?)]
   [let*-exp  (varnames list?) (varexps list?) (body list?)]
   [letr-exp  (varnames list?) (varexps list?) (body list?)]
-  [set!-exp  (target symbol?) (val expression?)])
+  [set!-exp  (target symbol?) (val expression?)]
+  [def-exp   (id symbol?) (body expression?)])
+
 
 ;; datatype for procedures.  At first there is only one
 ;; kind of procedure, but more kinds will be added later.

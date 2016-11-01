@@ -40,16 +40,16 @@
                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                  ;; TODO: add error checking to all of this new stuff? ;;
                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                 [(eqv? (car datum) 'cond)
-                  (cond-exp (map parse-exp (cdr datum)))]
-                 [(eqv? (car datum) 'begin)
-                  (begin-exp (map parse-exp (cdr datum)))]
-                 [(eqv? (car datum) 'while)
-                  (while-exp (parse-exp (cadr datum)) (map parse-exp (cddr datum)))]
-                 [(eqv? (car datum) 'case)
-                  (case-exp (parse-exp (cadr datum))
-                            (map (lambda (x) (parse-exp (car  x))) (cddr datum))
-                            (map (lambda (x) (parse-exp (cadr x))) (cddr datum)))]
+                 [(eqv? (car datum) 'cond)   (cond-exp  (map parse-exp (cdr datum)))]
+                 [(eqv? (car datum) 'begin)  (begin-exp (map parse-exp (cdr datum)))]
+                 [(eqv? (car datum) 'while)  (while-exp (parse-exp (cadr datum)) (map parse-exp (cddr datum)))]
+                 [(eqv? (car datum) 'define) (def-exp   (cadr datum) (parse-exp (caddr datum)))]
+                 [(eqv? (car datum) 'case)   (case-exp  (parse-exp (cadr datum))
+                                                        (map (lambda (x) (parse-exp (car  x))) (cddr datum))
+                                                        (map (lambda (x) (parse-exp (cadr x))) (cddr datum)))]
+                 ;;;;;;;;;;;;;;;;;;;
+                 ;; End new stuff ;;
+                 ;;;;;;;;;;;;;;;;;;;
                  [(eqv? (car datum) 'let)
                   (if (>= (length datum) 3)
                       (if (symbol? (cadr datum))

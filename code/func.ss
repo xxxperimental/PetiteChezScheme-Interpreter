@@ -1,6 +1,8 @@
 ;; General use fucntions
 (define v vector)
 (define vr vector-ref)
+(define vs vector-set!)
+(define vl vector-length)
 (define (v0 v) (vr v 0))
 (define (v1 v) (vr v 1))
 (define (v2 v) (vr v 2))
@@ -12,6 +14,13 @@
 (define (dp x) (display x))
 (define (dpp x) (display x)(newline))
 (define br newline)
+
+(define (vector-append-val vec val)
+  (let ([nvec (make-vector (++ (vl vec)))])
+    (do ([i 0 (++ i)]) ([= i (vl vec)] nvec) (vs nvec i (vr vec i)))
+    (vs nvec (vl vec) val)
+    nvec))
+(define va vector-append-val)
 
 (define (imap proc lists env)
   (letrec ([helper (lambda (lists)
@@ -36,6 +45,10 @@
            [let-exp   (varnames varexps body)
                       (app-exp (append (list (list 'lambda-exp (map cadr varnames) (map syntax-expand body)))
                                        (map syntax-expand varexps)))]
+           [let*-exp  (varnames varexps body)                      
+                      (if (equal? (length varnames) 1)
+                          (syntax-expand (let-exp (list (car varnames)) (list (car varexps)) body))
+                          (syntax-expand (let-exp (list (car varnames)) (list (car varexps)) (list (let*-exp (cdr varnames) (cdr varexps) body)))))]
            [letn-exp  (name vars varexps bodies)
                       (letr-exp (list (list 'var-exp name))
                                 (list (list 'lambda-exp (map cadr vars) (map syntax-expand (cadr bodies))))
@@ -46,7 +59,7 @@
                                              [(null? (cdr es)) (if1-exp (car (cadar es)) (cadr (cadar es)))]
                                              [else (if2-exp (car (cadar es)) (cadr (cadar es)) (helper (cdr es)))])))]
            [begin-exp (exps)
-                      (app-exp (list (lambda-exp '() exps)))]
+                      (syntax-expand (app-exp (list (lambda-exp '() exps))))]
            [while-exp (cnd bodies)
                       (letr-exp (list (var-exp 'looper) (var-exp 'bodies))
                                 (list (lambda-exp '() (list (if1-exp (syntax-expand cnd)
@@ -62,16 +75,7 @@
            [lambda-exp  (vars bodies) (lambda-exp vars (map syntax-expand bodies))]
            [lambdai-exp (vars bodies) (lambda-exp vars (map syntax-expand bodies))]
            [lambdal-exp (vars bodies) (lambda-exp vars (map syntax-expand bodies))]
+           [set!-exp    (target val)  (set!-exp target (syntax-expand val))]
+           [def-exp     (sym body)    (def-exp sym (syntax-expand body))]
            [else exp])))
 
- ;; Will potentially be useful for later
-(define let*->let
-  (lambda (let*-expression)
-    (define let*->let-helper
-      (lambda (exp-list element)
-        (if (equal? (length exp-list) 1)
-            (append (cons 'let (list (list (car exp-list))))
-                    (list element))
-            (append (cons 'let (list (list (car exp-list))))
-                    (list (let*->let-helper (cdr exp-list) element))))))
-    (let*->let-helper (cadr let*-expression) (caddr let*-expression))))

@@ -10,6 +10,14 @@
       (eval-exp ex env)
       ex))
 
+(define (ordered-ormap pred list env)
+  (if (null? list) #f
+      (or (eval-exp (pred (car list)) env) (ordered-ormap pred (cdr list) env))))
+
+(define (ordered-andmap pred list env)
+  (if (null? list) #t
+      (and (eval-exp (pred (car list)) env) (ordered-andmap pred (cdr list) env))))
+
 ;; eval-exp is the main component of the interpreter
 (define eval-exp
   (lambda (exp env)
@@ -18,7 +26,9 @@
            [litq-exp    (datum) (car datum)]
            [var-exp     (id)    (eval-exp-helper (apply-env env id (lambda () (eopl:error 'apply-env "variable ~s is not bound" id))) env)]
            [app-exp     (stuff) (apply-proc (eval-exp (car stuff) env)
-                                            (map (lambda (x) (eval-exp x env)) (cdr stuff))
+                                            (if (or (equal? (cadar stuff) 'or) (equal? (cadar stuff) 'and))
+                                                (cdr stuff)
+                                                (map (lambda (x) (eval-exp x env)) (cdr stuff)))
                                             env)]
            [if1-exp     (condition arm0) (if (eval-exp condition env)
                                              (eval-exp arm0 env)
@@ -26,10 +36,12 @@
            [if2-exp     (condition arm0 arm1) (if (eval-exp condition env)
                                                   (eval-exp arm0 env)
                                                   (eval-exp arm1 env))]
+           [letr-exp    (vars vbodies bodies) (eval-bodies bodies (extend-env (map cadr vars) vbodies env))]
            [lambda-exp  (vars bodies) (closure vars bodies env)]
            [lambdai-exp (vars bodies) (closure vars bodies env)]
            [lambdal-exp (vars bodies) (closure vars bodies env)]
-           [letr-exp    (vars vbodies bodies) (eval-bodies bodies (extend-env (map cadr vars) vbodies env))]
+           [set!-exp    (target val)  (set-var-env env target (eval-exp val env))]
+           [def-exp     (sym body)    (define-in-global sym (eval-exp body env))]
            [else        (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
 
@@ -48,20 +60,14 @@
                                   "Attempt to apply bad procedure: ~s" 
                                   proc-value)])))
 
-(define *prim-proc-names* '(+ - * / ++ add1 -- sub1 cons = < <= > >= not map or
-                              zero? list null? assq eq? equal? apply atom? length
-                              list->vector list? pair? procedure? vector->list list-tail
-                              vector make-vector vector-ref vector? number? eqv?
-                              symbol? set-car! set-cdr! vector-set! display append
-                              newline quotient car cdr caar cadr cdar cddr caaar
-                              caadr cadar caddr cdaar cdadr cddar cdddr
-                              caaaar caaadr caadar caaddr cadaar cadadr
-                              caddar cadddr cdaaar cdaadr cdadar cdaddr
-                              cddaar cddadr cdddar cddddr))
+(define *prim-proc-names* '(+ - * / ++ add1 -- sub1 cons = < <= > >= not map or zero? list null? assq eq? equal? apply atom? length
+                              list->vector list? pair? procedure? vector->list list-tail vector make-vector vector-ref vector? number?
+                              eqv? symbol? set-car! set-cdr! vector-set! display append newline quotient car cdr caar cadr cdar cddr
+                              caaar caadr cadar caddr cdaar cdadr cddar cdddr caaaar caaadr caadar caaddr cadaar cadadr caddar cadddr
+                              cdaaar cdaadr cdadar cdaddr cddaar cddadr cdddar cddddr))
 
 (define init-env (extend-env *prim-proc-names* (map prim-proc *prim-proc-names*) (empty-env)))
 (define global-env init-env)
-
 
 ;; Usually an interpreter must define each 
 ;; built-in procedure individually.  We are "cheating" a little bit.
@@ -79,8 +85,8 @@
       [(>=)     (apply >= args)]
       [(++)     (+    (car args) 1)]
       [(--)     (-    (car args) 1)]
-      [(or)     (ormap (lambda (x) x) args)]
-      [(and)    (andmap (lambda (x) x) args)]
+      [(or)     (ordered-ormap (lambda (x) x) args env)]
+      [(and)    (ordered-andmap (lambda (x) x) args env)]
       [(eq?)    (eq?  (car args) (cadr args))]
       [(car)    (car  (car args))]
       [(cdr)    (cdr  (car args))]
