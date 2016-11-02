@@ -65,8 +65,8 @@
                                 (list (lambda-exp '() (list (if1-exp (syntax-expand cnd)
                                                                      (app-exp (list (lambda-exp '() (append bodies (list (app-exp (list (var-exp 'looper))))))))))))
                                 (list (app-exp (list (var-exp 'looper)))))]
-           ;[case-exp  (val conds condexps)
-           ;           (syntax-expand (cond-exp (list (map (lambda (x) (
+;           [case-exp  (val conds condexps)
+;                      (syntax-expand (cond-exp (map (lambda (x) (app-exp (list (cadr datum) (
            ;; Just recurse down these
            [app-exp     (stuff) (app-exp (map syntax-expand stuff))]
            [if1-exp     (condition arm0) (if1-exp (syntax-expand condition) (syntax-expand arm0))]
