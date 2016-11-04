@@ -26,11 +26,48 @@
 ;; kind of procedure, but more kinds will be added later.
 (define-datatype proc-val proc-val?
   [prim-proc (name symbol?)]
-  [closure (vars (list-of symbol?))
+  [k-proc    (stored continuation?)]
+  [closure   (vars (list-of symbol?))
+             (bodies list?)
+             (env (lambda (x) (ormap
+                               (lambda (pred) (pred x))
+                               (list vector? null?))))])
+
+(define-datatype cont continuation?
+  [id-k    (x (lambda (t) #t))]
+  [var-k   (env vector?)
+           (k continuation?)]
+  [app1-k  (args list?)
+           (env vector?)
+           (k continuation?)]
+  [app2-k  (args list?)
+           (env vector?)
+           (k continuation?)]           
+  [app2-kk (vv (lambda (t) #t))
+           (env vector?)
+           (k continuation?)]
+  [rator-k (rands (list-of expression?))
+           (env vector?)
+           (k continuation?)]
+  [if-k    (then-exp expression?)
+           (else-exp expression?)
+           (env vector?)
+           (k continuation?)]
+  [rands-k (rator-val proc-val?)
+           (k continuation?)]
+  [let-k   (vars list?)
            (bodies list?)
-           (env (lambda (x) (ormap
-                             (lambda (pred) (pred x))
-                             (list vector? null?))))])
+           (env vector?)
+           (k continuation?)]
+  [ormap-k (lst list?)
+           (env vector?)
+           (k continuation?)]
+  [anmap-k (lst list?)
+           (env vector?)
+           (k continuation?)]
+  [procm-k (maptype (lambda (t) #t))
+           (k continuation?)]
+  )
 
 ;; environment type definitions
 (define (scheme-value? x) #t)

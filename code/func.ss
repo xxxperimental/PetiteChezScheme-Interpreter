@@ -15,6 +15,16 @@
 (define (dpp x) (display x)(newline))
 (define br newline)
 
+(define map-cps ; Pass in a proc-cps
+  (lambda (proc ls k)
+    (if (null? ls)
+        (apply-k k '())
+        (map-cps proc (cdr ls)
+                 (id-k (lambda (map-cps-cdr)
+                         (proc (car ls)
+                               (id-k (lambda (map-cps-car)
+                                       (apply-k k (cons map-cps-car map-cps-cdr)))))))))))
+
 (define (vector-append-val vec val)
   (let ([nvec (make-vector (++ (vl vec)))])
     (do ([i 0 (++ i)]) ([= i (vl vec)] nvec) (vs nvec i (vr vec i)))
