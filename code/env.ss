@@ -14,7 +14,7 @@
 (define (extend-env syms vals env) (v syms (list->vector vals) env))
 (define (apply-env-cps env sym fail k)
   (let helper ([env env] [global #f] [k k])
-    (if (null? env)
+    (if (= (vl env) 0)
         (if global (fail) (helper global-env #t k))
         (let ([pos (list-find-position sym (v0 env))])
           (if (number? pos)
@@ -22,7 +22,7 @@
               (helper (v2 env) global k))))))
 (define (set-var-env env sym val)
   (let helper ([env env] [global #f])
-    (if (null? env)
+    (if (= (vl env) 0)
         (helper global-env #t)
         (let ([pos (list-find-position sym (v0 env))])
           (cond [(number? pos)    (vs (v1 env) pos val)]

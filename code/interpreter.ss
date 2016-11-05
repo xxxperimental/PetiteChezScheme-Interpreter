@@ -1,10 +1,7 @@
 ;; top-level-eval evaluates a form in the global environment
-(define top-level-eval
-  (lambda (form)
-    ;; later we may add things that are not expressions.
-    (eval-exp-cps form (empty-env) (id-k (lambda (x) x)))))
+(define (top-level-eval form) (eval-exp-cps form (empty-env) (id-k (lambda (x) x))))
 
-(define (apply-k kont . v)
+(trace-define (apply-k kont v)
   (cases cont kont
          [id-k    (x)
                   (x v)]
@@ -36,7 +33,7 @@
   (if (and (list? ex) (not (null? ex)) (or (equal? (car ex) 'lit-exp) (equal? (car ex) 'var-exp) (equal? (car ex) 'app-exp)
                                            (equal? (car ex) 'if2-exp) (equal? (car ex) 'let-exp) (equal? (car ex) 'lambda-exp)))
       (eval-exp-cps ex env k)
-      ex))
+      (apply-k k ex)))
 
 (define procmap-cps
   (lambda (cond ls maptype k)
@@ -54,26 +51,23 @@
       (apply-k k #t)
       (eval-exp-cps (car list) env (anmap-k (cdr list) env k))))
 
-;; eval-exp is the main component of the interpreter
-(define eval-exp-cps
-  (lambda (exp env k)
-    (cases expression exp
-           [lit-exp     (datum) (apply-k k datum)]
-           [litq-exp    (datum) (apply-k k (car datum))]
-           [var-exp     (id)    (apply-env-cps env id (lambda () (eopl:error 'apply-env "variable ~s is not bound" id)) (var-k env k))]
-           [app-exp     (stuff) (eval-exp-cps (car stuff) env (if (or (equal? (cadar stuff) 'or) (equal? (cadar stuff) 'and))
-                                                                  (app1-k (cdr stuff) env k)
-                                                                  (app2-k (cdr stuff) env k)))]
-           [if1-exp     (condition arm0) (eval-exp-cps condition env (if-k arm0 (void) env k))]
-           [if2-exp     (condition arm0 arm1) (eval-exp-cps condition env (if-k arm0 arm1 env k))]
-           [letr-exp    (vars vbodies bodies) (eval-bodies-cps bodies (extend-env (map cadr vars) vbodies env) k)]
-           [lambda-exp  (vars bodies) (apply-k k (closure vars bodies env))]
-           [lambdai-exp (vars bodies) (apply-k k (closure vars bodies env))]
-           [lambdal-exp (vars bodies) (apply-k k (closure vars bodies env))]
-           [set!-exp    (target val)  (set-var-env env target (eval-exp val env))]
-           [def-exp     (sym body)    (define-in-global sym (eval-exp body env))]
-           [else        (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
-
+(trace-define (eval-exp-cps exp env k)
+  (cases expression exp
+         [lit-exp     (datum) (apply-k k datum)]
+         [litq-exp    (datum) (apply-k k (car datum))]
+         [var-exp     (id)    (apply-env-cps env id (lambda () (eopl:error 'apply-env "variable ~s is not bound" id)) (var-k env k))]
+         [app-exp     (stuff) (eval-exp-cps (car stuff) env (if (or (equal? (cadar stuff) 'or) (equal? (cadar stuff) 'and))
+                                                                (app1-k (cdr stuff) env k)
+                                                                (app2-k (cdr stuff) env k)))]
+         [if1-exp     (condition arm0)      (eval-exp-cps condition env (if-k arm0 (void) env k))]
+         [if2-exp     (condition arm0 arm1) (eval-exp-cps condition env (if-k arm0 arm1 env k))]
+         [letr-exp    (vars vbodies bodies) (eval-bodies-cps bodies (extend-env (map cadr vars) vbodies env) k)]
+         [lambda-exp  (vars bodies) (apply-k k (closure vars bodies env))]
+         [lambdai-exp (vars bodies) (apply-k k (closure vars bodies env))]
+         [lambdal-exp (vars bodies) (apply-k k (closure vars bodies env))]
+         [set!-exp    (target val)  (set-var-env env target (eval-exp val env))]
+         [def-exp     (sym body)    (define-in-global sym (eval-exp body env))]
+         [else        (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)]))
 
 (define (eval-bodies-cps bodies env k)
   (if (null? (cdr bodies))
@@ -198,4 +192,4 @@
       (rep))))  ; tail-recursive, so stack doesn't grow.
 
 (define eval-one-exp
-  (lambda (x) (car (top-level-eval (syntax-expand (parse-exp x))))))
+  (lambda (x) (top-level-eval (syntax-expand (parse-exp x)))))
