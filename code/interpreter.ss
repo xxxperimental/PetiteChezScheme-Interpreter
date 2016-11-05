@@ -1,7 +1,29 @@
 ;; top-level-eval evaluates a form in the global environment
 (define (top-level-eval form) (eval-exp-cps form (empty-env) (id-k (lambda (x) x))))
 
-(trace-define (apply-k kont v)
+(define procmap-cps
+  (lambda (cond ls maptype k)
+    (if (null? ls)
+        (k #t)
+        (map-cps cond ls (procm-k maptype k)))))
+
+(define (ordered-ormap-cps list env k)
+  (if (null? list)
+      (apply-k k #f)
+      (eval-exp-cps (car list) env (ormap-k (cdr list) env k))))
+
+(define (ordered-anmap-cps list env)
+  (if (null? list)
+      (apply-k k #t)
+      (eval-exp-cps (car list) env (anmap-k (cdr list) env k))))
+
+(define (eval-exp-helper-cps ex env k)
+  (if (and (list? ex) (not (null? ex)) (or (equal? (car ex) 'lit-exp) (equal? (car ex) 'var-exp) (equal? (car ex) 'app-exp)
+                                           (equal? (car ex) 'if2-exp) (equal? (car ex) 'let-exp) (equal? (car ex) 'lambda-exp)))
+      (eval-exp-cps ex env k)
+      (apply-k k ex)))
+
+(define (apply-k kont v)
   (cases cont kont
          [id-k    (x)
                   (x v)]
@@ -27,31 +49,11 @@
          [anmap-k (lst env k)
                   (or v (ordered-anmap-cps lst env k))]
          [procm-k (maptype k)
-                  (apply-k k (apply maptype v))]))
+                  (apply-k k (apply maptype v))]
+         [evbod-k (bodies env k)
+                  (eval-bodies-cps bodies env k)]))
 
-(define (eval-exp-helper-cps ex env k)
-  (if (and (list? ex) (not (null? ex)) (or (equal? (car ex) 'lit-exp) (equal? (car ex) 'var-exp) (equal? (car ex) 'app-exp)
-                                           (equal? (car ex) 'if2-exp) (equal? (car ex) 'let-exp) (equal? (car ex) 'lambda-exp)))
-      (eval-exp-cps ex env k)
-      (apply-k k ex)))
-
-(define procmap-cps
-  (lambda (cond ls maptype k)
-    (if (null? ls)
-        (k #t)
-        (map-cps cond ls (procm-k maptype k)))))
-
-(define (ordered-ormap-cps list env k)
-  (if (null? list)
-      (apply-k k #f)
-      (eval-exp-cps (car list) env (ormap-k (cdr list) env k))))
-
-(define (ordered-anmap-cps list env)
-  (if (null? list)
-      (apply-k k #t)
-      (eval-exp-cps (car list) env (anmap-k (cdr list) env k))))
-
-(trace-define (eval-exp-cps exp env k)
+(define (eval-exp-cps exp env k)
   (cases expression exp
          [lit-exp     (datum) (apply-k k datum)]
          [litq-exp    (datum) (apply-k k (car datum))]
@@ -72,9 +74,7 @@
 (define (eval-bodies-cps bodies env k)
   (if (null? (cdr bodies))
       (eval-exp-cps (car bodies) env k)
-      (eval-exp-cps (car bodies) env
-                    (lambda (evaluated-car)
-                      (eval-bodies-cps (cdr bodies) env k)))))
+      (eval-exp-cps (car bodies) env (evbod-k (cdr bodies) env k))))
       ;(begin (eval-exp (car bodies) env)
       ;       (eval-bodies (cdr bodies) env))))
 
@@ -82,7 +82,7 @@
   (lambda (proc-value args env k)
     (cases proc-val proc-value
            [prim-proc (op) (apply-prim-proc-cps op args env k)]
-           [closure   (vars bodies env) (eval-bodies bodies (extend-env vars args env))]
+           [closure   (vars bodies env) (eval-bodies-cps bodies (extend-env vars args env) k)]
            [k-proc    (stored-k) (apply-k stored-k (car args))]
            [else      (eopl:error 'apply-proc
                                   "Attempt to apply bad procedure: ~s" 

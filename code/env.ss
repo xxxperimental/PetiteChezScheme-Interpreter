@@ -18,7 +18,7 @@
         (if global (fail) (helper global-env #t k))
         (let ([pos (list-find-position sym (v0 env))])
           (if (number? pos)
-              (vr (v1 env) pos)
+              (apply-k k (vr (v1 env) pos))
               (helper (v2 env) global k))))))
 (define (set-var-env env sym val)
   (let helper ([env env] [global #f])
