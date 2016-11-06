@@ -38,10 +38,11 @@
          [rator-k (rands env k)
                   (eval-rands rands env (rands-k val k))]
          [rands-k (rator-val k)
-                  (apply-proc rator-val val k)]
-         [if-k    (then-exp else-exp env k)
-                  (if v (eval-exp-cps then-exp env k)
-                      (eval-exp-cps else-exp env k))]
+                  (apply-proc-cps rator-val val k)]
+         [if1-k   (then-exp env k)
+                  (if v (eval-exp-cps then-exp env k) (void))]
+         [if2-k   (then-exp else-exp env k)
+                  (if v (eval-exp-cps then-exp env k) (eval-exp-cps else-exp env k))]
          [let-k   (vars bodies env k)
                   (eval-bodies bodies (extend-env vars val env) k)]
          [ormap-k (lst env k)
@@ -61,13 +62,13 @@
          [app-exp     (stuff) (eval-exp-cps (car stuff) env (if (or (equal? (cadar stuff) 'or) (equal? (cadar stuff) 'and))
                                                                 (app1-k (cdr stuff) env k)
                                                                 (app2-k (cdr stuff) env k)))]
-         [if1-exp     (condition arm0)      (eval-exp-cps condition env (if-k arm0 (void) env k))]
-         [if2-exp     (condition arm0 arm1) (eval-exp-cps condition env (if-k arm0 arm1 env k))]
+         [if1-exp     (condition arm0)      (eval-exp-cps condition env (if1-k arm0 env k))]
+         [if2-exp     (condition arm0 arm1) (eval-exp-cps condition env (if2-k arm0 arm1 env k))]
          [letr-exp    (vars vbodies bodies) (eval-bodies-cps bodies (extend-env (map cadr vars) vbodies env) k)]
          [lambda-exp  (vars bodies) (apply-k k (closure vars bodies env))]
          [lambdai-exp (vars bodies) (apply-k k (closure vars bodies env))]
          [lambdal-exp (vars bodies) (apply-k k (closure vars bodies env))]
-         [set!-exp    (target val)  (set-var-env env target (eval-exp val env))]
+         [set!-exp    (target val)  (set-var-env env target (eval-exp-cps val env k))]
          [def-exp     (sym body)    (define-in-global sym (eval-exp body env))]
          [else        (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)]))
 
@@ -75,8 +76,6 @@
   (if (null? (cdr bodies))
       (eval-exp-cps (car bodies) env k)
       (eval-exp-cps (car bodies) env (evbod-k (cdr bodies) env k))))
-      ;(begin (eval-exp (car bodies) env)
-      ;       (eval-bodies (cdr bodies) env))))
 
 (define apply-proc-cps
   (lambda (proc-value args env k)
@@ -117,7 +116,7 @@
                [(eq?)    (eq?  (car args) (cadr args))]
                [(car)    (car  (car args))]
                [(cdr)    (cdr  (car args))]
-               [(map)    (imap (car args) (cdr args) env)]
+               [(map)    (imap-cps (car args) (cdr args) env k)]
                [(not)    (not  (car args))]
                [(add1)   (+    (car args) 1)]
                [(sub1)   (-    (car args) 1)]
@@ -129,7 +128,7 @@
                [(cadr)   (cadr (car args))]
                [(cdar)   (cdar (car args))]
                [(cddr)   (cddr (car args))]
-               [(apply)  (apply-proc (car args) (cadr args) env)]
+               [(apply)  (apply-proc-cps (car args) (cadr args) env k)]
                [(atom?)  (and (not (pair (car args))) (not (null? (car args))))]
                [(null?)  (null? (car args))]
                [(list?)  (list? (car args))]

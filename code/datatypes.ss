@@ -37,7 +37,8 @@
   [app2-k  (args list?) (env vector?) (k continuation?)]           
   [app2-kk (vv (lambda (t) #t)) (env vector?) (k continuation?)]
   [rator-k (rands (list-of expression?)) (env vector?) (k continuation?)]
-  [if-k    (then-exp expression?) (else-exp expression?) (env vector?) (k continuation?)]
+  [if1-k   (then-exp expression?) (env vector?) (k continuation?)]
+  [if2-k   (then-exp expression?) (else-exp expression?) (env vector?) (k continuation?)]
   [rands-k (rator-val proc-val?) (k continuation?)]
   [let-k   (vars list?) (bodies list?) (env vector?) (k continuation?)]
   [ormap-k (lst list?) (env vector?) (k continuation?)]
@@ -45,3 +46,4 @@
   [procm-k (maptype (lambda (t) #t)) (k continuation?)]
   [evbod-k (bodies list?) (env vector?) (k continuation?)])
 
+ 
