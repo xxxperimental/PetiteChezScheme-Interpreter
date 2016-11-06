@@ -1,4 +1,4 @@
-;; Environment definitions for CSSE 304 Scheme interpreter.  Based on EoPL section 2.3
+;; Environment definitions for CSSE 304 Scheme interpreter.
 
 (define (list-find-position sym los) (list-index (lambda (x) (eqv? sym x)) los))
 (define (list-index pred ls)

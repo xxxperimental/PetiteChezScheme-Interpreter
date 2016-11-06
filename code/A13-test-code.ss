@@ -207,7 +207,7 @@
   (lambda (correct results test-procedure?)
      (display ": ")
      (pretty-print 
-.      (if (andmap test-procedure? correct results)
+      (if (andmap test-procedure? correct results)
           'All-correct
           `(correct: ,correct yours: ,results)))))
 
