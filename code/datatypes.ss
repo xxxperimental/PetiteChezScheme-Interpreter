@@ -44,6 +44,8 @@
   [ormap-k (lst list?) (env vector?) (k continuation?)]
   [anmap-k (lst list?) (env vector?) (k continuation?)]
   [procm-k (maptype (lambda (t) #t)) (k continuation?)]
-  [evbod-k (bodies list?) (env vector?) (k continuation?)])
+  [evbod-k (bodies list?) (env vector?) (k continuation?)]
+  [set!-k  (target symbol?) (env vector?) (k continuation?)]
+  [def-k   (sym symbol?) (k continuation?)])
 
  
